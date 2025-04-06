@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Table Extractor and Analyzer</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 700px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #3498db;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        label {
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        input[type="url"] {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            width: 100%;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+        input[type="url"]:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        button {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        button[name="action"][value="extract"] {
+            background-color: #007bff;
+            color: white;
+        }
+        button[name="action"][value="extract"]:hover {
+            background-color: #0056b3;
+        }
+        button[name="action"][value="analyze"] {
+            background-color: #2ecc71;
+            color: white;
+        }
+        button[name="action"][value="analyze"]:hover {
+            background-color: #27ae60;
+        }
+        button[name="action"][value="clear"] {
+            background-color: #e74c3c;
+            color: white;
+        }
+        button[name="action"][value="clear"]:hover {
+            background-color: #c0392b;
+        }
+        .error-message {
+            color: #e74c3c;
+            margin-top: 20px;
+            font-weight: bold;
+            padding: 10px;
+            background-color: #fdecea;
+            border-radius: 6px;
+            border: 1px solid #e74c3c;
+        }
+        .markdown-output, .analysis-output {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.9em;
+            color: #333;
+            white-space: pre-wrap; /* Preserve formatting */
+            word-wrap: break-word; /* Break long words */
+            overflow-wrap: break-word; /* For better compatibility */
+            text-align: left;
+            max-height: 400px; /* Prevent overflowing if the content is too large */
+            overflow-y: auto; /* Allow vertical scrolling if content overflows */
+        }
+        .analysis-output {
+            background-color: #e6f7ff;
+            border: 1px solid #add8e6;
+            color: #222;
+        }
+        .download-link {
+            margin-top: 20px;
+        }
+        .download-link a {
+            background-color: #5cb85c;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+        .download-link a:hover {
+            background-color: #4cae4c;
+        }
+        footer {
+            margin-top: 30px;
+            color: #777;
+            font-size: 0.9em;
+        }
+
+        /* Spinner Styles */
+        .spinner {
+            display: none;
+            border: 4px solid #f3f3f3; /* Light gray */
+            border-top: 4px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Animation for Spinner */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Show spinner when active */
+        .show-spinner .spinner {
+            display: inline-block;
+        }
+
+        /* Enhancing Table Display */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Analyse Company's Financial data using Gemini</h1>
+        <p class="info-message">Enter the URL of a company from Screener.in .</p>
+        <form id="main-form" method="POST" action="">
+            <div class="form-group">
+                <label for="url">Website URL:</label>
+                <input type="url" id="url" name="url" placeholder="https://www.screener.in/" required>
+            </div>
+            <div class="button-group">
+                <button type="submit" name="action" value="extract">Extract to Markdown</button>
+                <button type="submit" name="action" value="analyze" id="analyze-btn">Analyze Report</button>
+                <button type="button" name="action" value="clear" id="clear-btn">Clear</button>
+            </div>
+        </form>
+
+        <!-- Loading Spinner -->
+        <div id="loading-container" class="spinner"></div>
+
+        {% if error %}
+        <p class="error-message">{{ error }}</p>
+        {% endif %}
+
+        {% if markdown_content and request.form.get('action') == 'extract' %}
+        <h2>Extracted Markdown:</h2>
+        <div class="markdown-output">
+            <pre>{{ markdown_content }}</pre>
+        </div>
+        <div class="download-link">
+            <a href="{{ url_for('download_markdown', markdown_content=markdown_content) }}">Download Markdown File</a>
+        </div>
+        {% endif %}
+
+        {% if analysis_result and request.form.get('action') == 'analyze' %}
+        <h2>Analysis Report:</h2>
+        <div class="analysis-output">
+            <pre>{{ analysis_result }}</pre>
+        </div>
+        {% endif %}
+
+        <footer>
+            Created by Meet Nagadia
+        </footer>
+    </div>
+
+    <script>
+        // Function to show spinner when Analyze button is clicked
+        const form = document.getElementById('main-form');
+        const analyzeButton = document.getElementById('analyze-btn');
+        const loadingContainer = document.getElementById('loading-container');
+        const clearButton = document.getElementById('clear-btn');
+        const markdownOutput = document.querySelector('.markdown-output');
+        const analysisOutput = document.querySelector('.analysis-output');
+
+        form.addEventListener('submit', function(event) {
+            // Check if Analyze button was clicked
+            if (event.target.name === 'action' && event.target.value === 'analyze') {
+                // Show the spinner
+                loadingContainer.style.display = 'inline-block';
+                // Disable the button to prevent multiple clicks
+                analyzeButton.disabled = true;
+            }
+        });
+
+        // Clear content on click of Clear button
+        clearButton.addEventListener('click', function() {
+            markdownOutput.innerHTML = '';
+            analysisOutput.innerHTML = '';
+            loadingContainer.style.display = 'none';
+            analyzeButton.disabled = false;
+        });// Clear content on click of Clear button
+clearButton.addEventListener('click', function() {
+    // Check if the markdownOutput element exists before modifying it
+    const markdownOutput = document.querySelector('.markdown-output');
+    const analysisOutput = document.querySelector('.analysis-output');
+
+    if (markdownOutput) {
+        markdownOutput.innerHTML = ''; // Clear markdown content
+    }
+
+    if (analysisOutput) {
+        analysisOutput.innerHTML = ''; // Clear analysis content
+    }
+
+    // Hide the loading spinner
+    loadingContainer.style.display = 'none';
+    // Enable the Analyze button again
+    analyzeButton.disabled = false;
+});
+
+
+        // Add an event listener for when the page finishes loading to hide the spinner
+        document.addEventListener('DOMContentLoaded', function() {
+            loadingContainer.style.display = 'none';
+            analyzeButton.disabled = false;
+        });
+    </script>
+</body>
+</html>

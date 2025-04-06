@@ -1,4 +1,3 @@
-```markdown
 #InsightAI
 This project is a web application that allows users to extract tables from Screener.in, view the extracted data in Markdown format, and optionally analyze the data using Google Gemini AI.
 
@@ -87,10 +86,4 @@ your_project/
 * Add progress indicators for the extraction and analysis processes.
 
 ## Author
-
 Meet Nagadia
-
-## License
-
-[Your License (e.g., MIT License)]
-```

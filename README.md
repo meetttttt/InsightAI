@@ -9,12 +9,20 @@ This project is a web application that allows users to extract tables from Scree
 * **Download Markdown:** Users can download the extracted table data as a `.md` (Markdown) file.
 * **Pleasant User Interface:** The application features a clean and user-friendly interface built with basic HTML and CSS.
 
+# Application View
+- Initial View:
+![image](https://github.com/user-attachments/assets/dd93e8ff-09f3-47d0-938f-08a0e51277be)
+
+- Extract Markdown:
+![image](https://github.com/user-attachments/assets/9fc19e44-867d-4ef0-b030-6896f45fd5f5)
+
+- Analyse Report:
+![image](https://github.com/user-attachments/assets/60d924bb-0b9f-4af8-90e4-e54b9cdb78a7)
+
+
 ## Prerequisites
 
-Before running the project, ensure you have the following installed:
-
-* **Python 3.x:** Download and install Python from [https://www.python.org/downloads/](https://www.python.org/downloads/).
-* **pip:** Python package installer (usually included with Python).
+Before running the project, ensure you have the following:
 * **Google Gemini API Key:** You will need a Google Gemini API key to use the AI analysis feature. You can obtain one from the Google AI Studio.
 
 ## Setup and Installation
